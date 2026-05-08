@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Sky blue and white theme for spiritual serenity */
+    --background: 0 0% 100%;
+    --foreground: 214 100% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 214 100% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 214 100% 15%;
+
+    /* Deep sky blue as primary - professional yet serene */
+    --primary: 207 87% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Light sky blue for secondary elements */
+    --secondary: 200 100% 96%;
+    --secondary-foreground: 214 100% 15%;
+
+    /* Soft muted tones */
+    --muted: 200 50% 95%;
+    --muted-foreground: 214 50% 40%;
+
+    /* Gentle accent in lighter sky blue */
+    --accent: 200 100% 92%;
+    --accent-foreground: 214 100% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 200 50% 90%;
+    --input: 200 50% 95%;
+    --ring: 207 87% 52%;
+    
+    /* Spiritual and academic design tokens */
+    --divine-light: 200 100% 98%;
+    --wisdom-blue: 207 87% 52%;
+    --serenity-blue: 200 100% 96%;
+    --peace-white: 0 0% 100%;
+    --inspiration-glow: 200 100% 85%;
+    --energetic-blue: 210 100% 25%;
+    
+    /* Gradients for ethereal effects */
+    --gradient-divine: linear-gradient(135deg, hsl(var(--divine-light)), hsl(var(--serenity-blue)));
+    --gradient-wisdom: linear-gradient(45deg, hsl(var(--wisdom-blue)), hsl(var(--inspiration-glow)));
+    --gradient-serene: linear-gradient(180deg, hsl(var(--peace-white)), hsl(var(--divine-light)));
+    
+    /* Shadows with spiritual glow */
+    --shadow-divine: 0 10px 30px -5px hsl(var(--wisdom-blue) / 0.15);
+    --shadow-gentle: 0 4px 20px -4px hsl(var(--wisdom-blue) / 0.1);
+    --shadow-wisdom: 0 0 40px hsl(var(--wisdom-blue) / 0.2);
+    
+    /* Smooth transitions for peaceful interactions */
+    --transition-serene: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-gentle: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Evening serenity theme */
+    --background: 214 50% 8%;
+    --foreground: 200 100% 95%;
+
+    --card: 214 40% 12%;
+    --card-foreground: 200 100% 95%;
+
+    --popover: 214 40% 12%;
+    --popover-foreground: 200 100% 95%;
+
+    --primary: 200 100% 85%;
+    --primary-foreground: 214 100% 15%;
+
+    --secondary: 214 30% 15%;
+    --secondary-foreground: 200 100% 95%;
+
+    --muted: 214 30% 15%;
+    --muted-foreground: 200 50% 70%;
+
+    --accent: 214 30% 18%;
+    --accent-foreground: 200 100% 95%;
+
+    --destructive: 0 62.8% 60%;
+    --destructive-foreground: 200 100% 95%;
+
+    --border: 214 30% 20%;
+    --input: 214 30% 18%;
+    --ring: 200 100% 85%;
+    
+    /* Dark theme spiritual tokens */
+    --divine-light: 214 40% 12%;
+    --wisdom-blue: 200 100% 75%;
+    --serenity-blue: 214 30% 15%;
+    --peace-white: 200 100% 95%;
+    --inspiration-glow: 200 80% 60%;
+    --energetic-blue: 210 100% 70%;
+    
+    /* Dark gradients */
+    --gradient-divine: linear-gradient(135deg, hsl(var(--divine-light)), hsl(var(--serenity-blue)));
+    --gradient-wisdom: linear-gradient(45deg, hsl(var(--wisdom-blue)), hsl(var(--inspiration-glow)));
+    --gradient-serene: linear-gradient(180deg, hsl(var(--background)), hsl(var(--divine-light)));
+    
+    /* Dark shadows */
+    --shadow-divine: 0 10px 30px -5px hsl(var(--wisdom-blue) / 0.25);
+    --shadow-gentle: 0 4px 20px -4px hsl(var(--wisdom-blue) / 0.15);
+    --shadow-wisdom: 0 0 40px hsl(var(--wisdom-blue) / 0.3);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

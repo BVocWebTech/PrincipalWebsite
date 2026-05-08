@@ -1,0 +1,261 @@
+import { useState, useEffect } from "react";
+
+const API = "https://drsrbeenajose.tech/api/achievements";
+
+const categories = [
+  "International",
+  "National",
+  "State",
+  "Institutional",
+  "University",
+];
+
+const Achievements = () => {
+
+  const [achievements, setAchievements] = useState([]);
+  const [category, setCategory] = useState("");
+  const [title, setTitle] = useState("");
+  const [order, setOrder] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const getToken = () => localStorage.getItem("token");
+
+  // ================= FETCH =================
+
+  const fetchAchievements = async () => {
+
+    try {
+
+      setLoading(true);
+
+      const res = await fetch(API);
+
+      const data = await res.json();
+
+      if (res.ok) {
+
+        // convert grouped object to flat array
+        const flat = [];
+
+        Object.keys(data).forEach((cat) => {
+
+          data[cat].forEach((item) => {
+
+            flat.push({
+              ...item,
+              category: cat
+            });
+
+          });
+
+        });
+
+        setAchievements(flat);
+
+      } else {
+
+        console.error("Invalid API response:", data);
+        setAchievements([]);
+
+      }
+
+      setLoading(false);
+
+    } catch (error) {
+
+      console.error("Fetch error:", error);
+      setAchievements([]);
+      setLoading(false);
+
+    }
+
+  };
+
+  useEffect(() => {
+    fetchAchievements();
+  }, []);
+
+  // ================= ADD =================
+
+  const addAchievement = async (e) => {
+
+    e.preventDefault();
+
+    if (!category || !title || !order) {
+      alert("All fields required");
+      return;
+    }
+
+    try {
+
+      const res = await fetch(API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({
+          category,
+          title,
+          order
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+
+        setCategory("");
+        setTitle("");
+        setOrder("");
+
+        fetchAchievements();
+
+      } else {
+
+        alert(data.message || "Failed to add");
+
+      }
+
+    } catch (err) {
+
+      console.error(err);
+
+    }
+
+  };
+
+  // ================= DELETE =================
+
+  const deleteAchievement = async (id) => {
+
+    if (!confirm("Delete this achievement?")) return;
+
+    try {
+
+      const res = await fetch(`${API}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${getToken()}`
+        }
+      });
+
+      if (res.ok) {
+        fetchAchievements();
+      }
+
+    } catch (err) {
+
+      console.error(err);
+
+    }
+
+  };
+
+  // ================= UI =================
+
+  return (
+
+    <div className="p-6 max-w-4xl mx-auto">
+
+      <h1 className="text-2xl font-bold mb-6">Achievements</h1>
+
+      {/* ADD FORM */}
+
+      <form
+        onSubmit={addAchievement}
+        className="border p-4 rounded mb-6 space-y-3"
+      >
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="border p-2 w-full"
+        >
+
+          <option value="">Select Category</option>
+
+          {categories.map((cat) => (
+
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+
+          ))}
+
+        </select>
+
+        <input
+          type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="border p-2 w-full"
+        />
+
+        <input
+          type="number"
+          placeholder="Order"
+          value={order}
+          onChange={(e) => setOrder(e.target.value)}
+          className="border p-2 w-full"
+        />
+
+        <button
+          type="submit"
+          className="bg-primary text-white px-4 py-2 rounded"
+        >
+          Add Achievement
+        </button>
+
+      </form>
+
+      {/* LIST */}
+
+      {loading ? (
+
+        <p>Loading...</p>
+
+      ) : achievements.length === 0 ? (
+
+        <p className="text-gray-500">No achievements found</p>
+
+      ) : (
+
+        achievements.map((item) => (
+
+          <div
+            key={item.id}
+            className="flex justify-between border p-3 mb-2 rounded items-center"
+          >
+
+            <div>
+
+              <p className="font-semibold">{item.title}</p>
+
+              <p className="text-sm text-gray-500">
+                {item.category} | Order: {item.order}
+              </p>
+
+            </div>
+
+            <button
+              onClick={() => deleteAchievement(item.id)}
+              className="bg-primary text-white px-3 py-1 rounded"
+            >
+              Delete
+            </button>
+
+          </div>
+
+        ))
+
+      )}
+
+    </div>
+
+  );
+
+};
+
+export default Achievements;
