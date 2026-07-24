@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import HeroSection from "../components/HeroSection";
 import AboutSection from "../components/AboutSection";
@@ -13,6 +13,7 @@ interface HeroData {
   portrait: string;
   caption?: string;
   email: string;
+  cv?: string;
 }
 
 export default function Index() {
