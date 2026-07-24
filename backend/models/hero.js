@@ -7,6 +7,7 @@ const HeroSchema = new mongoose.Schema({
   portrait: { type: String, required: true },
   caption: { type: String, default: "Visionary Leader"},
   email: { type: String, required: true },
+  cv: { type: String },
 });
 
 export default mongoose.model("Hero", HeroSchema);
