@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { Sparkles, BookOpen, Heart } from "lucide-react";
+import { Sparkles, BookOpen, Heart, Download } from "lucide-react";
 import researchHero from "../assets/research-hero.jpg";
 
 interface HeroData {
@@ -7,6 +7,7 @@ interface HeroData {
   title: string;
   portrait: string;
   caption?: string;
+  cv?: string;
 }
 
 interface HeroSectionProps {
@@ -78,6 +79,20 @@ const HeroSection = ({ hero }: HeroSectionProps) => {
                 <Sparkles className="w-5 h-5 mr-2" />
                 Learn More
               </Button>
+
+              {hero.cv && (
+                <Button variant="divine" size="lg" asChild>
+                  <a
+                    href={`https://drsrbeenajose.tech${hero.cv}`}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download className="w-5 h-5 mr-2" />
+                    Download CV
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
 
