@@ -7,6 +7,8 @@ export default function HeroSection() {
   const [email, setEmail] = useState("");
 const [portraitFile, setPortraitFile] = useState(null);
   const [portraitPreview, setPortraitPreview] = useState("");
+  const [cvFile, setCvFile] = useState(null);
+  const [cvUrl, setCvUrl] = useState("");
 
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
@@ -27,6 +29,10 @@ const [portraitFile, setPortraitFile] = useState(null);
 
       if (data?.portrait) {
         setPortraitPreview("https://drsrbeenajose.tech" + data.portrait);
+      }
+
+      if (data?.cv) {
+        setCvUrl("https://drsrbeenajose.tech" + data.cv);
       }
     } catch (err) {
       console.error("Error fetching hero:", err);
@@ -49,6 +55,10 @@ const [portraitFile, setPortraitFile] = useState(null);
         formData.append("portrait", portraitFile);
       }
 
+      if (cvFile) {
+        formData.append("cv", cvFile);
+      }
+
       const res = await fetch("https://drsrbeenajose.tech/api/hero", {
         method: "POST",
         headers: {
@@ -63,6 +73,7 @@ const [portraitFile, setPortraitFile] = useState(null);
         alert("✅ Hero Section Updated Successfully");
         fetchHero(); // reload fresh data
         setPortraitFile(null);
+        setCvFile(null);
       } else {
         alert("❌ " + data.message);
       }
@@ -149,6 +160,38 @@ const [portraitFile, setPortraitFile] = useState(null);
             }}
             className="w-full p-2 border rounded-xl"
           />
+        </div>
+
+        {/* CV Upload */}
+        <div>
+          <label className="font-semibold block mb-2">CV (PDF)</label>
+
+          {cvUrl && (
+            <a
+              href={cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-sm text-primary underline mb-3"
+            >
+              View current CV
+            </a>
+          )}
+
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => {
+              if (!e.target.files) return;
+              const file = e.target.files[0];
+              setCvFile(file);
+            }}
+            className="w-full p-2 border rounded-xl"
+          />
+          {cvFile && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Selected: {cvFile.name}
+            </p>
+          )}
         </div>
 
         {/* Save Button */}
