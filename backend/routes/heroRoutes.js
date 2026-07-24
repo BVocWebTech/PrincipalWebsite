@@ -22,13 +22,20 @@ console.log("APi hit");
 router.post(
   "/",
   protectAdmin,
-  upload.single("portrait"),
+  upload.fields([
+    { name: "portrait", maxCount: 1 },
+    { name: "cv", maxCount: 1 },
+  ]),
   async (req, res) => {
     try {
       const { name, title, caption, email } = req.body; // 👈 ADD email
 
-      const portrait = req.file
-        ? `/uploads/${req.file.filename}`
+      const portrait = req.files?.portrait
+        ? `/uploads/${req.files.portrait[0].filename}`
+        : null;
+
+      const cv = req.files?.cv
+        ? `/uploads/${req.files.cv[0].filename}`
         : null;
 
       let hero = await Hero.findOne({});
@@ -40,6 +47,7 @@ router.post(
           caption,
           email,       // 👈 SAVE email
           portrait,
+          cv,          // 👈 SAVE cv
         });
       } else {
         hero.name = name;
@@ -49,6 +57,10 @@ router.post(
 
         if (portrait) {
           hero.portrait = portrait;
+        }
+
+        if (cv) {
+          hero.cv = cv;   // 👈 UPDATE cv
         }
       }
 
