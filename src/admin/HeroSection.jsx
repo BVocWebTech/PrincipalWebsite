@@ -61,6 +61,8 @@ export default function HeroSection({ onUnauthorized }) {
   const [emailError, setEmailError] = useState("");
   const [portraitFile, setPortraitFile] = useState(null);
   const [portraitPreview, setPortraitPreview] = useState("");
+  const [cvFile, setCvFile] = useState(null);
+  const [cvUrl, setCvUrl] = useState("");
 
   // CV: cvUrl is the file already saved on the server, cvFile is a newly chosen one
   const [cvFile, setCvFile] = useState(null);
@@ -100,7 +102,14 @@ export default function HeroSection({ onUnauthorized }) {
       if (data?.portrait) {
         setPortraitPreview(`${API_BASE}${data.portrait}`);
       }
+<<<<<<< HEAD
       setCvUrl(data?.cv ? `${API_BASE}${data.cv}` : "");
+=======
+
+      if (data?.cv) {
+        setCvUrl("https://drsrbeenajose.tech" + data.cv);
+      }
+>>>>>>> 312e36388e9f95fdda9e1a955c7417c58f2b764f
     } catch (err) {
       console.error("Error fetching hero:", err);
     }
@@ -166,7 +175,15 @@ export default function HeroSection({ onUnauthorized }) {
         formData.append("cv", cvFile);
       }
 
+<<<<<<< HEAD
       const res = await fetch(`${API_BASE}/api/hero`, {
+=======
+      if (cvFile) {
+        formData.append("cv", cvFile);
+      }
+
+      const res = await fetch("https://drsrbeenajose.tech/api/hero", {
+>>>>>>> 312e36388e9f95fdda9e1a955c7417c58f2b764f
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -189,7 +206,11 @@ export default function HeroSection({ onUnauthorized }) {
         showNotice("success", "Hero section updated successfully.");
         fetchHero(); // reload fresh data
         setPortraitFile(null);
+<<<<<<< HEAD
         clearChosenCv();
+=======
+        setCvFile(null);
+>>>>>>> 312e36388e9f95fdda9e1a955c7417c58f2b764f
       } else {
         // the server sends the reason in `message` (or `error`)
         showNotice(
