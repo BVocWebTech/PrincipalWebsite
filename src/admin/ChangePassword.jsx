@@ -1,4 +1,36 @@
 import { useState } from "react";
+import { API_BASE } from "../lib/api";
+
+// Same academic palette as AdminPanel (change these to restyle)
+const THEME = {
+  navy: "#1f3a5f",
+  gold: "#b08d3c",
+  text: "#374151",
+  border: "#d6d0c0",
+  pageBg: "#f7f5f0",
+};
+
+const serif = "Georgia, 'Times New Roman', serif";
+
+const labelStyle = {
+  display: "block",
+  fontSize: "14px",
+  fontWeight: "bold",
+  color: THEME.navy,
+  marginBottom: "6px",
+  fontFamily: serif,
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "11px 12px",
+  border: `1px solid ${THEME.border}`,
+  borderRadius: "3px",
+  backgroundColor: "#ffffff",
+  color: "#111827",
+  fontSize: "15px",
+  outline: "none",
+};
 
 export default function ChangePassword() {
   const [formData, setFormData] = useState({
@@ -7,6 +39,7 @@ export default function ChangePassword() {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
+  const [focused, setFocused] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +55,7 @@ export default function ChangePassword() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("https://drsrbeenajose.tech/api/admin/change-password", {
+      const res = await fetch(`${API_BASE}/api/admin/change-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,7 +72,7 @@ export default function ChangePassword() {
         window.location.href = "/admin";
       } else {
         alert(data.message || "Error updating password");
-        if (res.status === 401) window.location.href = "/admin"; // Force re-login on auth errors
+        if (res.status === 401) window.location.href = "/admin";
       }
     } catch (err) {
       alert("Network error. Try again.");
@@ -48,50 +81,85 @@ export default function ChangePassword() {
     }
   };
 
+  const fields = [
+    { name: "oldPassword", label: "Current Password" },
+    { name: "newPassword", label: "New Password" },
+    { name: "confirmPassword", label: "Confirm New Password" },
+  ];
+
   return (
-    <section className="min-h-screen flex justify-center items-start pt-20 bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Security Settings</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-            <input
-              type="password"
-              name="oldPassword"
-              required
-              value={formData.oldPassword}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-            <input
-              type="password"
-              name="newPassword"
-              required
-              value={formData.newPassword}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              required
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
+    <section style={{ display: "flex", justifyContent: "center", padding: "32px 16px" }}>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "460px",
+          backgroundColor: "#ffffff",
+          border: `1px solid ${THEME.border}`,
+          borderTop: `3px solid ${THEME.navy}`,
+          borderRadius: "2px",
+          padding: "32px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+        }}
+      >
+        <h3
+          style={{
+            fontFamily: serif,
+            fontSize: "24px",
+            fontWeight: "bold",
+            color: THEME.navy,
+            textAlign: "center",
+            marginBottom: "8px",
+          }}
+        >
+          Change Password
+        </h3>
+        <div
+          style={{
+            width: "60px",
+            height: "3px",
+            backgroundColor: THEME.gold,
+            margin: "0 auto 24px",
+          }}
+        />
+
+        <form onSubmit={handleSubmit}>
+          {fields.map((f) => (
+            <div key={f.name} style={{ marginBottom: "16px" }}>
+              <label style={labelStyle}>{f.label}</label>
+              <input
+                type="password"
+                name={f.name}
+                required
+                value={formData[f.name]}
+                onChange={handleChange}
+                onFocus={() => setFocused(f.name)}
+                onBlur={() => setFocused("")}
+                style={{
+                  ...inputStyle,
+                  borderColor: focused === f.name ? THEME.navy : THEME.border,
+                  boxShadow: focused === f.name ? `0 0 0 2px ${THEME.navy}22` : "none",
+                }}
+              />
+            </div>
+          ))}
+
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 mt-4 rounded-lg font-bold text-white transition-colors ${
-              loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            style={{
+              width: "100%",
+              marginTop: "8px",
+              padding: "12px",
+              backgroundColor: loading ? "#9ca3af" : THEME.navy,
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "3px",
+              fontFamily: serif,
+              fontSize: "16px",
+              fontWeight: "bold",
+              letterSpacing: "0.05em",
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
           >
             {loading ? "Processing..." : "Update Password"}
           </button>

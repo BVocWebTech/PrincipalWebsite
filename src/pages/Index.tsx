@@ -6,6 +6,7 @@ import ResearchSection from "../components/ResearchSection";
 import LeadershipSection from "../components/LeadershipSection";
 import ContactSection from "../components/ContactSection";
 import Footer from "../components/Footer";
+import { API_BASE } from "../lib/api";
 
 interface HeroData {
   name: string;
@@ -21,7 +22,7 @@ export default function Index() {
   useEffect(() => {
     const fetchHero = async () => {
       try {
-        const res = await fetch("https://drsrbeenajose.tech/api/hero");
+        const res = await fetch(`${API_BASE}/api/hero`);
         const data = await res.json();
         setHero(data);
       } catch (error) {

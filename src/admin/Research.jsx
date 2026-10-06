@@ -1,18 +1,102 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from "../lib/api";
+
+// Same academic palette as AdminPanel (change these to restyle)
+const THEME = {
+  navy: "#1f3a5f",
+  gold: "#b08d3c",
+  text: "#374151",
+  muted: "#6b7280",
+  border: "#d6d0c0",
+  softBg: "#f7f5f0",
+  editBg: "#eef2f8",
+  danger: "#8b1e2d",
+};
+
+const serif = "Georgia, 'Times New Roman', serif";
+
+const labelStyle = {
+  display: "block",
+  fontSize: "14px",
+  fontWeight: "bold",
+  color: THEME.navy,
+  marginBottom: "6px",
+  fontFamily: serif,
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "11px 12px",
+  border: `1px solid ${THEME.border}`,
+  borderRadius: "3px",
+  backgroundColor: "#ffffff",
+  color: "#111827",
+  fontSize: "15px",
+  outline: "none",
+};
+
+const badgeStyle = {
+  display: "inline-block",
+  backgroundColor: "#e8edf5",
+  color: THEME.navy,
+  border: "1px solid #c4d0e3",
+  borderRadius: "2px",
+  padding: "2px 10px",
+  fontSize: "12px",
+  fontWeight: "bold",
+  letterSpacing: "0.05em",
+};
+
+const primaryBtn = (disabled = false) => ({
+  backgroundColor: disabled ? "#9ca3af" : THEME.navy,
+  color: "#ffffff",
+  padding: "10px 26px",
+  border: "none",
+  borderRadius: "3px",
+  fontFamily: serif,
+  fontSize: "15px",
+  fontWeight: "bold",
+  letterSpacing: "0.05em",
+  cursor: disabled ? "not-allowed" : "pointer",
+});
+
+const outlineBtn = (color) => ({
+  backgroundColor: "transparent",
+  color,
+  padding: "6px 16px",
+  border: `1.5px solid ${color}`,
+  borderRadius: "3px",
+  fontSize: "14px",
+  fontWeight: "bold",
+  cursor: "pointer",
+});
+
+const linkOrDash = (link) =>
+  link ? (
+    <a
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ color: THEME.navy, textDecoration: "underline" }}
+    >
+      View
+    </a>
+  ) : (
+    "-"
+  );
+
+// Defined outside the component so inputs keep focus while typing
+const Field = ({ label, children }) => (
+  <div>
+    <label style={labelStyle}>{label}</label>
+    {children}
+  </div>
+);
 
 export default function ResearchAdmin() {
-
   const getToken = () => localStorage.getItem("token");
 
-  const types = [
-    "Journal",
-    "Full paper in proceedings",
-    "Book",
-    "Article",
-    "Book Chapter",
-    
-  ];
-
+  const types = ["Journal", "Full paper in proceedings", "Book", "Article", "Book Chapter"];
   const levels = ["International", "National", "State", "Local"];
   const today = new Date().toISOString().split("T")[0];
 
@@ -29,6 +113,7 @@ export default function ResearchAdmin() {
   const [previewList, setPreviewList] = useState([]);
   const [publications, setPublications] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [focused, setFocused] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -39,18 +124,14 @@ export default function ResearchAdmin() {
   }, [currentPage]);
 
   const fetchPublications = async (page = 1) => {
-    const res = await fetch(
-      `https://drsrbeenajose.tech/api/research?page=${page}&limit=${limit}`
-    );
+    const res = await fetch(`${API_BASE}/api/research?page=${page}&limit=${limit}`);
     const data = await res.json();
     setPublications(data.publications || []);
     setTotalPages(data.totalPages || 1);
   };
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  // ================= PREVIEW =================
   const handleAddToPreview = () => {
     if (!form.type || !form.name || !form.title || !form.date) {
       alert("Required fields missing");
@@ -59,22 +140,13 @@ export default function ResearchAdmin() {
 
     setPreviewList([...previewList, form]);
 
-    setForm({
-      type: "",
-      name: "",
-      title: "",
-      level: "International",
-      indexing: "",
-      link: "",
-      date: "",
-    });
+    setForm({ type: "", name: "", title: "", level: "International", indexing: "", link: "", date: "" });
   };
 
-  const removePreview = (index) =>
-    setPreviewList(previewList.filter((_, i) => i !== index));
+  const removePreview = (index) => setPreviewList(previewList.filter((_, i) => i !== index));
 
   const handleSaveAll = async () => {
-    const res = await fetch("https://drsrbeenajose.tech/api/research", {
+    const res = await fetch(`${API_BASE}/api/research`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -94,29 +166,21 @@ export default function ResearchAdmin() {
     fetchPublications(currentPage);
   };
 
-  // ================= EDIT =================
   const handleEdit = (item) => {
     setEditingId(item._id);
-    setForm({
-      ...item,
-      date: item.date.split("T")[0],
-    });
+    setForm({ ...item, date: item.date.split("T")[0] });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ================= UPDATE =================
   const handleUpdate = async () => {
-    const res = await fetch(
-      `https://drsrbeenajose.tech/api/research/${editingId}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
-        },
-        body: JSON.stringify(form),
-      }
-    );
+    const res = await fetch(`${API_BASE}/api/research/${editingId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(form),
+    });
 
     if (!res.ok) {
       const data = await res.json();
@@ -129,180 +193,275 @@ export default function ResearchAdmin() {
     fetchPublications(currentPage);
   };
 
-  // ================= DELETE =================
   const handleDelete = async (id) => {
-    await fetch(`https://drsrbeenajose.tech/api/research/${id}`, {
+    await fetch(`${API_BASE}/api/research/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     fetchPublications(currentPage);
   };
 
+  // Input style with a navy border while focused
+  const field = (key) => ({
+    ...inputStyle,
+    borderColor: focused === key ? THEME.navy : THEME.border,
+    boxShadow: focused === key ? `0 0 0 2px ${THEME.navy}22` : "none",
+  });
+
+  const focusProps = (key) => ({
+    onFocus: () => setFocused(key),
+    onBlur: () => setFocused(""),
+  });
+
   return (
-    <section className="min-h-screen flex justify-center pt-20 bg-gray-100">
-      <div className="w-full max-w-3xl bg-white shadow-lg rounded-2xl p-6 space-y-6">
+    <section style={{ padding: "24px", maxWidth: "860px", margin: "0 auto" }}>
+      <h2
+        style={{
+          fontFamily: serif,
+          fontSize: "26px",
+          fontWeight: "bold",
+          color: THEME.navy,
+          marginBottom: "6px",
+        }}
+      >
+        {editingId ? "Update Publications" : "Publications"}
+      </h2>
+      <div style={{ width: "60px", height: "3px", backgroundColor: THEME.gold, marginBottom: "24px" }} />
 
-        <h2 className="text-2xl font-bold">
-          {editingId ? "Update Research" : "Research Admin"}
-        </h2>
+      {/* Add / edit form */}
+      <div
+        style={{
+          backgroundColor: editingId ? THEME.editBg : THEME.softBg,
+          border: `1px solid ${THEME.border}`,
+          borderLeft: `4px solid ${editingId ? THEME.navy : THEME.gold}`,
+          borderRadius: "2px",
+          padding: "20px",
+          marginBottom: "28px",
+        }}
+      >
+        <h3
+          style={{
+            fontFamily: serif,
+            fontSize: "18px",
+            fontWeight: "bold",
+            color: THEME.navy,
+            marginBottom: "16px",
+          }}
+        >
+          {editingId ? "Edit Publication" : "Add New Publication"}
+        </h3>
 
-        {/* FORM */}
-        <div className="grid grid-cols-2 gap-4">
-          <select name="type" value={form.type} onChange={handleChange} className="border p-2 rounded">
-            <option value="">Select Type</option>
-            {types.map((t) => <option key={t}>{t}</option>)}
-          </select>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gap: "16px",
+            marginBottom: "18px",
+          }}
+        >
+          <Field label="Type">
+            <select name="type" value={form.type} onChange={handleChange} style={field("type")} {...focusProps("type")}>
+              <option value="">Select Type</option>
+              {types.map((t) => <option key={t}>{t}</option>)}
+            </select>
+          </Field>
 
-          <select name="level" value={form.level} onChange={handleChange} className="border p-2 rounded">
-            {levels.map((l) => <option key={l}>{l}</option>)}
-          </select>
+          <Field label="Level">
+            <select name="level" value={form.level} onChange={handleChange} style={field("level")} {...focusProps("level")}>
+              {levels.map((l) => <option key={l}>{l}</option>)}
+            </select>
+          </Field>
 
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Journal Name" className="border p-2 rounded" />
-          <input name="title" value={form.title} onChange={handleChange} placeholder="Title" className="border p-2 rounded" />
-          <input name="indexing" value={form.indexing} onChange={handleChange} placeholder="Indexing" className="border p-2 rounded" />
-          <input name="link" value={form.link} onChange={handleChange} placeholder="Link" className="border p-2 rounded" />
-          <input type="date" max={today} name="date" value={form.date} onChange={handleChange} className="border p-2 rounded" />
+          <Field label="Journal Name">
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Journal Name" style={field("name")} {...focusProps("name")} />
+          </Field>
+
+          <Field label="Title">
+            <input name="title" value={form.title} onChange={handleChange} placeholder="Title" style={field("title")} {...focusProps("title")} />
+          </Field>
+
+          <Field label="Indexing">
+            <input name="indexing" value={form.indexing} onChange={handleChange} placeholder="Indexing" style={field("indexing")} {...focusProps("indexing")} />
+          </Field>
+
+          <Field label="Link">
+            <input name="link" value={form.link} onChange={handleChange} placeholder="Link" style={field("link")} {...focusProps("link")} />
+          </Field>
+
+          <Field label="Date">
+            <input
+              type="date"
+              max={today}
+              name="date"
+              value={form.date}
+              onChange={handleChange}
+              onClick={(e) => e.currentTarget.showPicker?.()}
+              style={field("date")}
+              {...focusProps("date")}
+            />
+          </Field>
         </div>
 
-        <button
-          onClick={editingId ? handleUpdate : handleAddToPreview}
-          className="bg-primary text-white px-6 py-2 rounded"
-        >
+        <button onClick={editingId ? handleUpdate : handleAddToPreview} style={primaryBtn()}>
           {editingId ? "Update" : "Add to Preview"}
         </button>
-
-        {/* PREVIEW */}
-{previewList.length > 0 && (
-  <div className="bg-gray-100 p-4 rounded mt-6">
-    <h3 className="font-bold mb-4 text-lg">Preview</h3>
-
-    {previewList.map((item, index) => (
-      <div
-        key={index}
-        className="bg-white p-4 rounded mb-3 shadow-sm border"
-      >
-    {/* PREVIEW ITEM */}
-<div className="flex justify-between items-center bg-white p-3 rounded shadow-sm mb-2">
-
-  {/* Text Section */}
-  <p className="text-sm flex-1 pr-4 break-words">
-    {item.type} | {item.name} | {item.title} | {item.level} | {item.indexing || "-"} |{" "}
-    {item.link ? (
-      <a
-        href={item.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 underline"
-      >
-        View
-      </a>
-    ) : (
-      "-"
-    )} | {new Date(item.date).toLocaleDateString()}
-  </p>
-
-  {/* Remove Button */}
-  <button
-    onClick={() => removePreview(index)}
-    className="bg-primary text-white px-3 py-1 rounded text-sm"
-  >
-    Remove
-  </button>
-
-</div>
       </div>
-    ))}
 
-    <button
-      onClick={handleSaveAll}
-      className="bg-primary text-white px-6 py-2 rounded mt-3"
-    >
-      Save All
-    </button>
-  </div>
-)}
-           
-
-        {/* LIST */}
-       {publications.map((item) => (
-  <div
-    key={item._id}
-    className="flex justify-between items-center border p-4 rounded mb-2 bg-white"
-  >
-
-    {/* Text Section */}
-    <p className="font-semibold text-sm flex-1 pr-4 break-words">
-      {item.title} | {item.type} | {item.name} | {item.level} |{" "}
-      {item.indexing || "-"} |{" "}
-      {item.link ? (
-        <a
-          href={item.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline"
+      {/* Preview */}
+      {previewList.length > 0 && (
+        <div
+          style={{
+            backgroundColor: THEME.softBg,
+            border: `1px solid ${THEME.border}`,
+            borderRadius: "2px",
+            padding: "20px",
+            marginBottom: "28px",
+          }}
         >
-          View
-        </a>
-      ) : (
-        "-"
-      )} | {new Date(item.date).toLocaleDateString()}
-    </p>
+          <h3
+            style={{
+              fontFamily: serif,
+              fontSize: "18px",
+              fontWeight: "bold",
+              color: THEME.navy,
+              marginBottom: "16px",
+            }}
+          >
+            Preview
+          </h3>
 
-    {/* Buttons Section */}
-    <div className="flex gap-2">
-      <button
-        onClick={() => handleEdit(item)}
-        className="bg-primary text-white px-3 py-1 rounded text-sm"
-      >
-        Edit
-      </button>
+          {previewList.map((item, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: "16px",
+                backgroundColor: "#ffffff",
+                border: `1px solid ${THEME.border}`,
+                borderLeft: `4px solid ${THEME.gold}`,
+                borderRadius: "2px",
+                padding: "12px 16px",
+                marginBottom: "10px",
+              }}
+            >
+              <p style={{ fontSize: "14px", color: THEME.text, flex: 1, wordBreak: "break-word" }}>
+                {item.type} | {item.name} | {item.title} | {item.level} | {item.indexing || "-"} |{" "}
+                {linkOrDash(item.link)} | {new Date(item.date).toLocaleDateString()}
+              </p>
+              <button onClick={() => removePreview(index)} style={{ ...outlineBtn(THEME.danger), flexShrink: 0 }}>
+                Remove
+              </button>
+            </div>
+          ))}
 
-      <button
-        onClick={() => handleDelete(item._id)}
-        className="bg-primary text-white px-3 py-1 rounded text-sm"
-      >
-        Delete
-      </button>
-    </div>
+          <button onClick={handleSaveAll} style={{ ...primaryBtn(), marginTop: "6px" }}>
+            Save All
+          </button>
+        </div>
+      )}
 
-  </div>
-))}
+      {/* Saved publications */}
+      {publications.map((item) => (
+        <div
+          key={item._id}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "16px",
+            backgroundColor: editingId === item._id ? THEME.editBg : "#ffffff",
+            border: `1px solid ${THEME.border}`,
+            borderLeft: `4px solid ${THEME.navy}`,
+            borderRadius: "2px",
+            padding: "14px 16px",
+            marginBottom: "10px",
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p
+              style={{
+                fontFamily: serif,
+                fontSize: "16px",
+                fontWeight: "bold",
+                color: THEME.navy,
+                marginBottom: "6px",
+                wordBreak: "break-word",
+              }}
+            >
+              {item.title}
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "4px" }}>
+              <span style={badgeStyle}>{item.type}</span>
+              <span style={badgeStyle}>{item.level}</span>
+              <span style={{ fontSize: "13px", color: THEME.muted }}>
+                {new Date(item.date).toLocaleDateString()}
+              </span>
+            </div>
+            <p style={{ fontSize: "14px", color: THEME.text, wordBreak: "break-word" }}>
+              {item.name} | Indexing: {item.indexing || "-"} | Link: {linkOrDash(item.link)}
+            </p>
+          </div>
 
-        {totalPages > 1 && (
-  <div className="flex justify-center gap-2 mt-6">
+          <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+            <button onClick={() => handleEdit(item)} style={outlineBtn(THEME.navy)}>
+              Edit
+            </button>
+            <button onClick={() => handleDelete(item._id)} style={outlineBtn(THEME.danger)}>
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
 
-    <button
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage(currentPage - 1)}
-      className="px-3 py-1 border rounded disabled:opacity-50"
-    >
-      Prev
-    </button>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "24px", flexWrap: "wrap" }}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            style={{
+              ...pageBtn(false),
+              opacity: currentPage === 1 ? 0.5 : 1,
+              cursor: currentPage === 1 ? "not-allowed" : "pointer",
+            }}
+          >
+            Prev
+          </button>
 
-    {[...Array(totalPages)].map((_, i) => (
-      <button
-        key={i}
-        onClick={() => setCurrentPage(i + 1)}
-        className={`px-3 py-1 border rounded ${
-          currentPage === i + 1
-            ? "bg-primary text-white"
-            : "bg-white"
-        }`}
-      >
-        {i + 1}
-      </button>
-    ))} 
+          {[...Array(totalPages)].map((_, i) => (
+            <button key={i} onClick={() => setCurrentPage(i + 1)} style={pageBtn(currentPage === i + 1)}>
+              {i + 1}
+            </button>
+          ))}
 
-    <button
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage(currentPage + 1)}
-      className="px-3 py-1 border rounded disabled:opacity-50"
-    >
-      Next
-    </button>
-
-  </div>
-   
-  )}
-  </div></section>)
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+            style={{
+              ...pageBtn(false),
+              opacity: currentPage === totalPages ? 0.5 : 1,
+              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+            }}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </section>
+  );
 }
+
+// Pagination button: filled navy when it is the current page
+const pageBtn = (active) => ({
+  backgroundColor: active ? THEME.navy : "#ffffff",
+  color: active ? "#ffffff" : THEME.navy,
+  padding: "6px 14px",
+  border: `1px solid ${THEME.navy}`,
+  borderRadius: "3px",
+  fontFamily: serif,
+  fontSize: "14px",
+  fontWeight: active ? "bold" : "normal",
+  cursor: "pointer",
+});

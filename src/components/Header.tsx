@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { BookOpen, GraduationCap, Heart, Users, Menu, X } from "lucide-react";
+import { BookOpen, GraduationCap, Heart, Users, Menu, X, Download } from "lucide-react";
+import { API_BASE } from "../lib/api";
 
 interface HeroData {
   name: string;
   title: string;
+  cv?: string; // path saved by the admin panel, e.g. /uploads/cv-1712345.pdf
 }
 
 interface HeaderProps {
@@ -18,6 +20,34 @@ const Header = ({ hero }: HeaderProps) => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
     setOpen(false);
+  };
+
+  const cvUrl = hero.cv ? `${API_BASE}${hero.cv}` : "";
+
+  const downloadCv = async () => {
+    if (!cvUrl) return;
+    setOpen(false);
+
+    try {
+      // Fetch as a blob so the browser saves the file even when the API is on another origin
+      const res = await fetch(cvUrl);
+      if (!res.ok) throw new Error("CV not found");
+      const blob = await res.blob();
+
+      const ext = cvUrl.substring(cvUrl.lastIndexOf(".")) || ".pdf";
+      const fileName = `${hero.name.replace(/[^\w]+/g, "_")}_CV${ext}`;
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    } catch {
+      // fallback: open the file in a new tab
+      window.open(cvUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   return (
@@ -58,6 +88,13 @@ const Header = ({ hero }: HeaderProps) => {
               Leadership
             </Button>
 
+            {cvUrl && (
+              <Button variant="serene" size="sm" onClick={downloadCv}>
+                <Download className="w-4 h-4 mr-1" />
+                Download CV
+              </Button>
+            )}
+
             <Button variant="divine" size="sm" onClick={() => scrollToSection("contact")}>
               Connect
             </Button>
@@ -81,6 +118,12 @@ const Header = ({ hero }: HeaderProps) => {
             <Button variant="serene" onClick={() => scrollToSection("leadership")}>
               Leadership
             </Button>
+            {cvUrl && (
+              <Button variant="serene" onClick={downloadCv}>
+                <Download className="w-4 h-4 mr-1" />
+                Download CV
+              </Button>
+            )}
             <Button variant="divine" onClick={() => scrollToSection("contact")}>
               Connect
             </Button>
