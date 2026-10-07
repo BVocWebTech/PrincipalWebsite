@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { API_BASE } from "../lib/api";
-import SectionAdmin from "./SectionAdmin";
+import SectionAdmin from "./Sectionadmin";
 
 const API = `${API_BASE}/api/achievements`;
 
