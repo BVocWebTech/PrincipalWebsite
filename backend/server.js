@@ -7,9 +7,9 @@ import achievementRoutes from "./routes/achievementRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import heroRoutes from "./routes/heroRoutes.js";
 import researchRoutes from "./routes/researchRoutes.js";
-import sectionRoutes from "./routes/sectionRoutes.js";
+import sectionRoutes from "./routes/Sectionroutes.js";
 import Admin from "./models/admin.js";
-import transporter from "./mailer.js"; // Brevo API wrapper (adjust path if needed)
+import transporter from "./Mailer.js"; // Brevo API wrapper (adjust path if needed)
 
 const app = express();
 const PORT = process.env.PORT || 5000;
