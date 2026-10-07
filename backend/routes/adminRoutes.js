@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import Admin from "../models/admin.js";
 import protectAdmin from "../middleware/authMiddleware.js";
-import transporter from "../mailer.js";
+import transporter from "../Mailer.js";
 
 const router = express.Router();
 
