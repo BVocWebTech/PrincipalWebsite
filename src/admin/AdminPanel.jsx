@@ -3,7 +3,7 @@ import HeroSection from "./HeroSection";
 import Achievements from "./Achievements";
 import Research from "./Research";
 import ChangePassword from "./ChangePassword";
-import SectionAdmin from "./SectionAdmin";
+import SectionAdmin from "./Sectionadmin";
 
 const TABS = [
   { key: "hero", label: "Hero" },
